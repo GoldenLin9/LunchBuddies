@@ -12,7 +12,7 @@ from rest_framework import permissions
 
 from .serializers import BookingSerializer
 
-from .models import Booking
+from .models import Booking, User
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -37,12 +37,50 @@ def test(request):
     return HttpResponse("Hello, world!")
 
 
+class Join(APIView):
+    
+    permission_classes = (permissions.AllowAny,)
+
+    def get_queryset(self):
+        return Booking.objects.all()
+    
+
+    def post(self, request):
+
+        booking = Booking.objects.get(id=request.data['id'])
+        user = User.objects.get(id=request.data['user_id'])
+        booking.members.add(user)
+        return HttpResponse("User joined", status=201)
+
+
+class Leave(APIView):
+
+    permission_classes = (permissions.AllowAny,)
+
+    def get_queryset(self):
+        return Booking.objects.all()
+    
+
+    def post(self, request):
+
+        print(request.data)
+
+        booking = Booking.objects.get(id=request.data['id'])
+        user = User.objects.get(id=request.data['user_id'])
+        booking.members.remove(user)
+        return HttpResponse("User left", status=201)
+
 class Book(APIView):
 
     permission_classes = (permissions.AllowAny,)
 
     def get_queryset(self):
         return Booking.objects.all()
+    
+    def get(self, request):
+        booking = self.get_queryset().filter(pk = request.data['id'])
+        serializer = BookingSerializer(booking, many=True)
+        return HttpResponse(serializer.data, status=200)
 
     def post(self, request):
 
@@ -61,3 +99,9 @@ class Book(APIView):
             return HttpResponse("Booking updated", status=200)
         else:
             return HttpResponse("Booking not updated", status=400)
+        
+    def delete(self, request):
+        booking = Booking.objects.get(id=request.data['id'])
+        booking.delete()
+        return HttpResponse("Booking deleted", status=200)
+
