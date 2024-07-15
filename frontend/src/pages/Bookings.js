@@ -1,6 +1,6 @@
 // src/pages/Bookings.js
 import React, { useState } from 'react';
-import { Box, VStack, Heading, SimpleGrid, Select, Input, HStack, Button, useToast } from '@chakra-ui/react';
+import { Box, VStack, Heading, SimpleGrid, Select, Input, HStack, Button, useToast, Stack  } from '@chakra-ui/react';
 import BookingCard from '../components/BookingCard';
 
 const Bookings = () => {
@@ -23,15 +23,30 @@ const Bookings = () => {
       <VStack spacing={8} align="stretch">
         <Heading>Lunch Meetups</Heading>
         
-        <HStack>
-          <Select placeholder="Filter by location" value={location} onChange={(e) => setLocation(e.target.value)}>
+        <Stack direction={["column", "column", "row"]} spacing={4}>
+          <Select 
+            placeholder="Filter by location" 
+            value={location} 
+            onChange={(e) => setLocation(e.target.value)}
+          >
             <option value="Byte Cafe">Byte Cafe</option>
             <option value="Park Picnic Area">Park Picnic Area</option>
             <option value="Downtown Diner">Downtown Diner</option>
           </Select>
-          <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-          <Button colorScheme="teal" onClick={handleCreateBooking}>Create New Booking</Button>
-        </HStack>
+          <Input 
+            type="date" 
+            value={date} 
+            onChange={(e) => setDate(e.target.value)}
+          />
+          <Button 
+            colorScheme="teal" 
+            onClick={handleCreateBooking}
+            width={["100%", "100%", "auto"]}
+            flexShrink={0}
+          >
+            Create New Booking
+          </Button>
+        </Stack>
 
         <SimpleGrid columns={[1, 2, 3]} spacing={6}>
           <BookingCard 

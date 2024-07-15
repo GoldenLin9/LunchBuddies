@@ -1,13 +1,13 @@
 // src/components/BookingCard.js
-import React from 'react';
+import React, { useState } from 'react';
 import { Box, Heading, Text, Button, useToast, VStack, HStack, Badge, Avatar, AvatarGroup } from '@chakra-ui/react';
-import { Link } from 'react-router-dom';
 
 const BookingCard = ({ id, title, location, time, date, participants, description }) => {
+  const [isJoined, setIsJoined] = useState(false);
   const toast = useToast();
 
   const handleJoin = () => {
-    console.log('Joining group:', title);
+    setIsJoined(true);
     toast({
       title: "Joined group",
       description: `You've successfully joined ${title}`,
@@ -15,6 +15,7 @@ const BookingCard = ({ id, title, location, time, date, participants, descriptio
       duration: 3000,
       isClosable: true,
     });
+    // Here you would typically send a request to your backend to join the group
   };
 
   return (
@@ -35,10 +36,13 @@ const BookingCard = ({ id, title, location, time, date, participants, descriptio
             ))}
           </AvatarGroup>
         </Box>
-        <HStack>
-          <Button colorScheme="teal" onClick={handleJoin} flex={1}>Join</Button>
-          <Button as={Link} to={`/chat/${id}`} colorScheme="blue" flex={1}>Chat Room</Button>
-        </HStack>
+        <Button 
+          colorScheme={isJoined ? "green" : "teal"} 
+          onClick={handleJoin} 
+          isDisabled={isJoined}
+        >
+          {isJoined ? "Joined" : "Join"}
+        </Button>
       </VStack>
     </Box>
   );
