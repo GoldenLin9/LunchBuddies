@@ -10,7 +10,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.views import APIView
 from rest_framework import permissions
 
-from .serializers import BookingSerializer
+from .serializers import BookingSerializer, UserSerializer
 
 from .models import Booking, User
 
@@ -105,3 +105,19 @@ class Book(APIView):
         booking.delete()
         return HttpResponse("Booking deleted", status=200)
 
+
+
+class RegisterView(APIView):
+
+    permission_classes = (permissions.AllowAny,)
+
+    def get_queryset(self):
+        return User.objects.all()
+    
+    def post(self, request):
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return HttpResponse("User created", status=201)
+        else:
+            return HttpResponse("User not created", status=400)
