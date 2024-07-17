@@ -1,5 +1,7 @@
 // src/pages/Bookings.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios'
+import useAxios from '../hooks/useAxios'
 
 import {
   Box,
@@ -47,6 +49,15 @@ const Bookings = () => {
     setNewBooking({ title: "", location: "", time: "" });
     onClose();
   };
+
+  let api = useAxios();
+
+  useEffect(()=>{
+   // axios.get('http://localhost:8000/api/books').then((response)=>{console.log("success", response)});
+    
+    api.get('books').then((response)=>{console.log("success", response)});
+
+  }, []);
 
   return (
     <Box maxW="container.xl" mx="auto" py={10}>
