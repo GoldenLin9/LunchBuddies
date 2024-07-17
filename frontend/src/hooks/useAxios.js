@@ -22,7 +22,8 @@ export default function useAxios() {
 
     axiosInstance.interceptors.request.use(async req => {
 
-        const isExpired = dayjs(jwtDecode(access).exp * 1000).isBefore(dayjs());
+        const isExpired = dayjs().isAfter(dayjs.unix(jwtDecode(access).exp))
+
 
         if (!isExpired) {
             return req;
@@ -38,7 +39,8 @@ export default function useAxios() {
         setRefresh(response.data.refresh);
         setUser(jwtDecode(response.data.access));
 
-        req.headers['Authorization'] = `Bearer ${response.data.access}`;
+        req.headers.Authorization = `Bearer ${response.data.access}`;
+
         return req;
     });
 

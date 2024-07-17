@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Booking, User
+from .models import Booking, User, Message
 
 
 class BookingSerializer(serializers.ModelSerializer):
@@ -21,3 +21,11 @@ class UserSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         return User.objects.create_user(**validated_data)
+    
+class MessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Message
+        fields = '__all__'
+    
+    def create(self, validated_data):
+        return Message.objects.create(**validated_data)

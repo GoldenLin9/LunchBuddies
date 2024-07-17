@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import Booking, User
+from .models import Booking, Message, User
 
 class MyUserAdmin(admin.ModelAdmin):
     model = User
@@ -10,3 +10,4 @@ class MyUserAdmin(admin.ModelAdmin):
 
 admin.site.register(User, MyUserAdmin)
 admin.site.register(Booking)
+admin.site.register(Message)

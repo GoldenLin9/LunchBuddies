@@ -10,7 +10,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.views import APIView
 from rest_framework import permissions
 
-from .serializers import BookingSerializer, UserSerializer
+from .serializers import BookingSerializer, UserSerializer, MessageSerializer
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from rest_framework import permissions
@@ -20,7 +20,12 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from .models import Booking, User
+from rest_framework.response import Response
+
+from .models import Booking, User, Message
+
+from django.db.models import Q
+
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -63,7 +68,7 @@ class Join(APIView):
 
 class Leave(APIView):
 
-    authentication_classes = (JWTAuthentication)
+    authentication_classes = (JWTAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
@@ -79,24 +84,40 @@ class Leave(APIView):
 
 class Books(APIView):
 
-    # authentication_classes = (JWTAuthentication)
-    # permission_classes = (permissions.IsAuthenticated,)
-    permission_classes = (permissions.AllowAny,)
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
         return Booking.objects.all()
     
     def get(self, request):
 
-        booking = self.get_queryset()
+        booking = self.get_queryset().filter(Q(members__in=[request.user]) | Q(owner = request.user)).distinct()
+
+
         serializer = BookingSerializer(booking, many=True)
         return HttpResponse(serializer.data, status=200)
+
+class AllBooks(APIView):
+
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        return Booking.objects.all()
     
+
+    def get(self, request):
+
+        booking = self.get_queryset()
+
+        serializer = BookingSerializer(booking, many = True)
+        return HttpResponse(serializer.data, status = 200)
     
 
 class Book(APIView):
 
-    authentication_classes = (JWTAuthentication)
+    authentication_classes = (JWTAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
@@ -105,7 +126,7 @@ class Book(APIView):
     def get(self, request, pk):
         booking = self.get_queryset().filter(pk = pk)
         serializer = BookingSerializer(booking, many=False)
-        return HttpResponse(serializer.data, status=200)
+        return Response(serializer.data, status=200)
 
     def post(self, request):
         owner = request.user
@@ -119,7 +140,7 @@ class Book(APIView):
 
         booking.members.set(members)
 
-        return HttpResponse("Booking created", status=201)
+        return Response("Booking created", status=201)
 
         # serializer = BookingSerializer(data=request.data)
         # if serializer.is_valid():
@@ -133,23 +154,23 @@ class Book(APIView):
 
 
         if booking.owner != request.user:
-            return HttpResponse("You are not the owner of this booking", status=403)
+            return Response("You are not the owner of this booking", status=403)
 
         serializer = BookingSerializer(booking, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return HttpResponse("Booking updated", status=200)
+            return Response("Booking updated", status=200)
         else:
-            return HttpResponse("Booking not updated", status=400)
+            return Response("Booking not updated", status=400)
         
     def delete(self, request):
         booking = Booking.objects.get(id=request.data['id'])
 
         if booking.owner != request.user:
-            return HttpResponse("You are not the owner of this booking", status = 403)
+            return Response("You are not the owner of this booking", status = 403)
         
         booking.delete()
-        return HttpResponse("Booking deleted", status=200)
+        return Response("Booking deleted", status=200)
 
 
 
@@ -164,6 +185,47 @@ class RegisterView(APIView):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return HttpResponse("User created", status=201)
+            return Response("User created", status=201)
         else:
-            return HttpResponse("User not created", status=400)
+            return Response("User not created", status=400)
+
+class Messages(APIView):
+
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (JWTAuthentication,)
+
+    def get_queryset(self):
+        return Message.objects.all()
+    
+    def get(self, request, pk):
+        booking = Booking.objects.get(id=pk)
+        messages = self.get_queryset().filter(booking=booking)
+        serializer = MessageSerializer(messages, many=True)
+        return Response(serializer.data, status=200)
+    
+class User(APIView):
+
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (JWTAuthentication,)
+
+    def get_queryset(self):
+        return User.objects.all()
+    
+    def put(self, request):
+        user = User.objects.get(id=request.user.id)
+        serializer = UserSerializer(user, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response("User updated", status=200)
+        else:
+            return Response("User not updated", status=400)
+        
+    def delete(self, request):
+        user = User.objects.get(id=request.user.id)
+        user.delete()
+        return Response("User deleted", status=200)
+    
+    def get(self, request):
+        user = User.objects.get(id=request.user.id)
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=200)

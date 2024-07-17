@@ -55,7 +55,7 @@ const Bookings = () => {
   useEffect(()=>{
    // axios.get('http://localhost:8000/api/books').then((response)=>{console.log("success", response)});
     
-    api.get('books').then((response)=>{console.log("success", response)});
+    api.get('myBooks').then((response)=>{console.log("success", response)});
 
   }, []);
 
