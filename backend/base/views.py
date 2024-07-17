@@ -79,15 +79,16 @@ class Leave(APIView):
 
 class Books(APIView):
 
-    authentication_classes = (JWTAuthentication)
-    permission_classes = (permissions.IsAuthenticated,)
+    # authentication_classes = (JWTAuthentication)
+    # permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.AllowAny,)
 
     def get_queryset(self):
         return Booking.objects.all()
     
     def get(self, request):
 
-        booking = self.get_queryset().filter(owner = request.user | request.user in Booking.members)
+        booking = self.get_queryset()
         serializer = BookingSerializer(booking, many=True)
         return HttpResponse(serializer.data, status=200)
     
@@ -101,9 +102,9 @@ class Book(APIView):
     def get_queryset(self):
         return Booking.objects.all()
     
-    def get(self, request):
-        booking = self.get_queryset().filter(pk = request.data['id'])
-        serializer = BookingSerializer(booking, many=True)
+    def get(self, request, pk):
+        booking = self.get_queryset().filter(pk = pk)
+        serializer = BookingSerializer(booking, many=False)
         return HttpResponse(serializer.data, status=200)
 
     def post(self, request):
