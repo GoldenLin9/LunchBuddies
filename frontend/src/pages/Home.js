@@ -102,7 +102,7 @@ const Home = () => {
         </Center>
 
         <Box flex="1" display="flex" flexDirection="column" justifyContent="flex-end">
-          <Heading size="md" mb={3}>Current and Upcoming Bookings</Heading>
+          <Heading size="md" mb={3} textAlign="center">Current and Upcoming Bookings</Heading>
           <Box height="35vh">
             <BookingSlider bookings={bookings} />
           </Box>

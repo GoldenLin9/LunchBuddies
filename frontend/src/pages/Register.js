@@ -1,7 +1,40 @@
+<<<<<<< Updated upstream
 // src/pages/Register.js
 import React, { useState, useContext } from 'react';
-import { Box, VStack, Heading, FormControl, FormLabel, Input, Button } from '@chakra-ui/react';
+=======
+// // src/pages/Register.js
+// import React from 'react';
+// import { Box, VStack, Heading, FormControl, FormLabel, Input, Button } from '@chakra-ui/react';
 
+// const Register = () => (
+//   <Box maxW="container.sm" mx="auto" py={10}>
+//     <VStack spacing={6}>
+//       <Heading>Register</Heading>
+//       <FormControl>
+//         <FormLabel>Name</FormLabel>
+//         <Input type="text" />
+//       </FormControl>
+//       <FormControl>
+//         <FormLabel>Email</FormLabel>
+//         <Input type="email" />
+//       </FormControl>
+//       <FormControl>
+//         <FormLabel>Password</FormLabel>
+//         <Input type="password" />
+//       </FormControl>
+//       <Button colorScheme="teal" width="full">Register</Button>
+//     </VStack>
+//   </Box>
+// );
+
+// export default Register;
+
+import React from 'react';
+>>>>>>> Stashed changes
+import { Box, VStack, Heading, FormControl, FormLabel, Input, Button } from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
+
+<<<<<<< Updated upstream
 import AuthContext from '../context/AuthContext';
 
 
@@ -47,3 +80,39 @@ export default function Register() {
   </>
 
 };
+=======
+const Register = () => {
+  const navigate = useNavigate();
+
+  const handleRegister = () => {
+    // You can add validation or state management here
+    navigate('/profile-setup');
+  };
+
+  return (
+    <Box maxW="container.sm" mx="auto" py={10}>
+      <VStack spacing={6}>
+        <Heading>Register</Heading>
+        <FormControl>
+          <FormLabel>Name</FormLabel>
+          <Input type="text" />
+        </FormControl>
+        <FormControl>
+          <FormLabel>Email</FormLabel>
+          <Input type="email" />
+        </FormControl>
+        <FormControl>
+          <FormLabel>Password</FormLabel>
+          <Input type="password" />
+        </FormControl>
+        <Button colorScheme="teal" width="full" onClick={handleRegister}>
+          Register
+        </Button>
+      </VStack>
+    </Box>
+  );
+};
+
+export default Register;
+
+>>>>>>> Stashed changes
