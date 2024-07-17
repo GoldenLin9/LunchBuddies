@@ -77,6 +77,22 @@ class Leave(APIView):
         return HttpResponse("User left", status=201)
     
 
+class Books(APIView):
+
+    authentication_classes = (JWTAuthentication)
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        return Booking.objects.all()
+    
+    def get(self, request):
+
+        booking = self.get_queryset().filter(owner = request.user)
+        serializer = BookingSerializer(booking, many=True)
+        return HttpResponse(serializer.data, status=200)
+    
+    
+
 class Book(APIView):
 
     authentication_classes = (JWTAuthentication)

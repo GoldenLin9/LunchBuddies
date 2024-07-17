@@ -11,6 +11,7 @@ from rest_framework_simplejwt.views import (
 urlpatterns = [
     path("", views.test, name="test"),
     path("book/", views.Book.as_view(), name="book"),
+    path("books/", views.Books.as_view(), name="books"),
     path("join/", views.Join.as_view(), name="join"),
     path("leave/", views.Leave.as_view(), name="leave"),
 
