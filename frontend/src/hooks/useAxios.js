@@ -41,4 +41,6 @@ export default function useAxios() {
         req.headers['Authorization'] = `Bearer ${response.data.access}`;
         return req;
     });
+
+    return axiosInstance;
 }
