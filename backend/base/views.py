@@ -87,7 +87,7 @@ class Books(APIView):
     
     def get(self, request):
 
-        booking = self.get_queryset().filter(owner = request.user)
+        booking = self.get_queryset().filter(owner = request.user | request.user in Booking.members)
         serializer = BookingSerializer(booking, many=True)
         return HttpResponse(serializer.data, status=200)
     
