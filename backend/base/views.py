@@ -11,6 +11,14 @@ from rest_framework.views import APIView
 from rest_framework import permissions
 
 from .serializers import BookingSerializer, UserSerializer
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
+from rest_framework import permissions
+
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
+
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from .models import Booking, User
 
@@ -39,7 +47,7 @@ def test(request):
 
 class Join(APIView):
     
-    authentication_classes = [permissions.JWTAuthentication]
+    authentication_classes = (JWTAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
@@ -55,7 +63,7 @@ class Join(APIView):
 
 class Leave(APIView):
 
-    authentication_classes = [permissions.JWTAuthentication]
+    authentication_classes = (JWTAuthentication)
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
@@ -71,7 +79,7 @@ class Leave(APIView):
 
 class Book(APIView):
 
-    authentication_classes = [permissions.JWTAuthentication]
+    authentication_classes = (JWTAuthentication)
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
