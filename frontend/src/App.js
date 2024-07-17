@@ -11,6 +11,7 @@ import Register from './pages/Register';
 import Profile from './pages/Profile';
 import Bookings from './pages/Bookings';
 import Chat from './pages/Chat';
+import ProfileSetup from './pages/ProfileSetup'
 
 import { AuthProvider } from './context/AuthContext';
 
@@ -22,6 +23,7 @@ function App() {
     <ChakraProvider>
 
       <Router>
+<<<<<<< Updated upstream
 
         <AuthProvider>
           
@@ -40,6 +42,20 @@ function App() {
                     <Route path="*" element={<Navigate to="/login" replace />} />
                 </Routes></Box>
             <Footer />
+=======
+        <Box minHeight="100vh" display="flex" flexDirection="column">
+          <Header />
+          <Box flex={1}>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/bookings" element={<Bookings />} />
+              <Route path="/chat/:id" element={<Chat />} />
+              <Route path="/profile-setup" element={<ProfileSetup />} />
+            </Routes>
+>>>>>>> Stashed changes
           </Box>
           
         </AuthProvider>
