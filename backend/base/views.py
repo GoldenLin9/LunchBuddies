@@ -39,7 +39,8 @@ def test(request):
 
 class Join(APIView):
     
-    permission_classes = (permissions.AllowAny,)
+    authentication_classes = [permissions.JWTAuthentication]
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
         return Booking.objects.all()
@@ -48,14 +49,14 @@ class Join(APIView):
     def post(self, request):
 
         booking = Booking.objects.get(id=request.data['id'])
-        user = User.objects.get(id=request.data['user_id'])
-        booking.members.add(user)
+        booking.members.add(request.user)
         return HttpResponse("User joined", status=201)
 
 
 class Leave(APIView):
 
-    permission_classes = (permissions.AllowAny,)
+    authentication_classes = [permissions.JWTAuthentication]
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
         return Booking.objects.all()
@@ -63,16 +64,15 @@ class Leave(APIView):
 
     def post(self, request):
 
-        print(request.data)
-
         booking = Booking.objects.get(id=request.data['id'])
-        user = User.objects.get(id=request.data['user_id'])
-        booking.members.remove(user)
+        booking.members.remove(request.user)
         return HttpResponse("User left", status=201)
+    
 
 class Book(APIView):
 
-    permission_classes = (permissions.AllowAny,)
+    authentication_classes = [permissions.JWTAuthentication]
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
         return Booking.objects.all()
@@ -83,16 +83,33 @@ class Book(APIView):
         return HttpResponse(serializer.data, status=200)
 
     def post(self, request):
+        owner = request.user
+        location = request.data['location']
+        meeting_time = request.data['meeting_time']
+        members = request.data['members']
+        description = request.data['description']
 
-        serializer = BookingSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return HttpResponse("Booking created", status=201)
-        else:
-            return HttpResponse("Booking not created", status=400)
+        booking = Booking(owner=owner, location=location, meeting_time=meeting_time, description=description)
+        booking.save()
+
+        booking.members.set(members)
+
+        return HttpResponse("Booking created", status=201)
+
+        # serializer = BookingSerializer(data=request.data)
+        # if serializer.is_valid():
+        #     serializer.save()
+        #     return HttpResponse("Booking created", status=201)
+        # else:
+        #     return HttpResponse("Booking not created", status=400)
 
     def put(self, request):
         booking = Booking.objects.get(id=request.data['id'])
+
+
+        if booking.owner != request.user:
+            return HttpResponse("You are not the owner of this booking", status=403)
+
         serializer = BookingSerializer(booking, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -102,6 +119,10 @@ class Book(APIView):
         
     def delete(self, request):
         booking = Booking.objects.get(id=request.data['id'])
+
+        if booking.owner != request.user:
+            return HttpResponse("You are not the owner of this booking", status = 403)
+        
         booking.delete()
         return HttpResponse("Booking deleted", status=200)
 

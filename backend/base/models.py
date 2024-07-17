@@ -21,4 +21,12 @@ class Booking(models.Model):
     def __str__(self):
         return f"{self.owner.username} - {self.location} - {self.meeting_time} - {self.description}"
     
-    
+
+class Message(models.Model):
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    booking = models.ForeignKey(Booking, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.author.username} - {self.booking.location} - {self.content}"
