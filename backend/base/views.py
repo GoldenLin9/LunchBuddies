@@ -126,7 +126,7 @@ class Create(APIView):
         return Booking.objects.all()
     
     def post(self, request):
-        owner = User.objects.get(id=1)
+        owner = request.user
         location = request.data['location']
         meeting_time = request.data['meeting_time']
         members = request.data['members']
