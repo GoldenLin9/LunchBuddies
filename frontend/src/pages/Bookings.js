@@ -1,8 +1,5 @@
-// src/pages/Bookings.js
 import React, { useState, useEffect } from 'react';
-import axios from 'axios'
-import useAxios from '../hooks/useAxios'
-
+import axios from 'axios';
 import {
   Box,
   VStack,
@@ -32,38 +29,63 @@ const Bookings = () => {
   const [location, setLocation] = useState('');
   const [date, setDate] = useState('');
   const toast = useToast();
-  const [bookings, setBookings] = useState([
-    { title: "Tech Lunch", location: "Byte Cafe", time: "12:30 PM" },
-    { title: "Casual Meetup", location: "Park Picnic Area", time: "1:00 PM" },
-    { title: "Business Networking", location: "Downtown Diner", time: "12:00 PM" },
-  ]);
-  const [newBooking, setNewBooking] = useState({ title: "", location: "", time: "" });
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true); // Add loading state
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setNewBooking((prev) => ({ ...prev, [name]: value }));
-  };
+  useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        const response = await axios.get('http://localhost:8000/api/allBooks/', {
+          headers: {
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzIxMzUyMTYxLCJpYXQiOjE3MjEyNjU3NjEsImp0aSI6IjJhODczNDZlZDVmYjQ1OTg4ZDk2Y2ZhZDE1YTRhY2EzIiwidXNlcl9pZCI6MSwidXNlcm5hbWUiOiJHb2xkZW4iLCJhZ2UiOm51bGwsIm1ham9yIjpudWxsLCJiaW8iOm51bGx9.dVRHHJDUH5Hb2Oo4cdU-GetUzeNHwaaas25TUQJj9OU'
+          }
+        });
+  
+        console.log('API response:', response.data);
+        console.log('Type of response.data:', typeof response.data);
+  
+        // Split the string into individual object strings
+        const objStrings = response.data.match(/\{[^}]+\}/g);
+  
+        // Parse each object string individually
+        const bookingsArray = objStrings.map(str => {
+          // Replace single quotes with double quotes
+          const jsonStr = str.replace(/'/g, '"');
+          return JSON.parse(jsonStr);
+        });
+  
+        console.log('Parsed bookings:', bookingsArray);
+  
+        setBookings(bookingsArray);
+        setLoading(false);
+      } catch (error) {
+        console.error("There was an error fetching the bookings!", error);
+        toast({
+          title: "Error fetching bookings",
+          description: "Please try again later.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+        setBookings([]);
+        setLoading(false);
+      }
+    };
+  
+    fetchBookings();
+  }, [toast]);
 
   const handleSave = () => {
-    setBookings((prev) => [...prev, newBooking]);
-    setNewBooking({ title: "", location: "", time: "" });
-    onClose();
+    // Implement save logic here, e.g., sending a POST request to save the booking
+    console.log("Save button clicked");
+    onClose(); // Close the modal after saving
   };
-
-  let api = useAxios();
-
-  useEffect(()=>{
-   // axios.get('http://localhost:8000/api/books').then((response)=>{console.log("success", response)});
-    
-    api.get('myBooks').then((response)=>{console.log("success", response)});
-
-  }, []);
 
   return (
     <Box maxW="container.xl" mx="auto" py={10}>
       <VStack spacing={8} align="stretch">
         <Heading>Lunch Meetups</Heading>
-        
+
         <Stack direction={["column", "column", "row"]} spacing={4}>
           <Select 
             placeholder="Filter by location" 
@@ -90,34 +112,25 @@ const Bookings = () => {
         </Stack>
 
         <SimpleGrid columns={[1, 2, 3]} spacing={6}>
-          <BookingCard 
-            id="1" 
-            title="Tech Lunch" 
-            location="Byte Cafe" 
-            time="12:30 PM" 
-            date="2024-07-16"
-            participants={["John", "Alice", "Bob"]}
-            description="Join us for a lunch discussion about the latest tech trends!"
-          />
-          <BookingCard 
-            id="2" 
-            title="Casual Meetup" 
-            location="Park Picnic Area" 
-            time="1:00 PM" 
-            date="2024-07-17"
-            participants={["Emma", "Michael"]}
-            description="Relaxed outdoor lunch. Bring your own food!"
-          />
-          <BookingCard 
-            id="3" 
-            title="Business Networking" 
-            location="Downtown Diner" 
-            time="12:00 PM" 
-            date="2024-07-18"
-            participants={["Sarah", "David", "Lisa", "Tom"]}
-            description="Network with local professionals over lunch."
-          />
-        </SimpleGrid>
+  {loading ? (
+    <Box>Loading...</Box>
+  ) : bookings.length > 0 ? (
+    bookings.map((booking) => (
+      <BookingCard 
+        key={booking.id}
+        id={booking.id}
+        title={`Booking ${booking.id}`}
+        location={booking.location}
+        time={new Date(booking.meeting_time).toLocaleTimeString()}
+        date={new Date(booking.meeting_time).toLocaleDateString()}
+        description={booking.description}
+        participants={booking.members}
+      />
+    ))
+  ) : (
+    <Box>No bookings found.</Box>
+  )}
+</SimpleGrid>
       </VStack>
 
       <Modal isOpen={isOpen} onClose={onClose}>
@@ -126,30 +139,33 @@ const Bookings = () => {
           <ModalHeader>Create a New Booking</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <FormControl id="title" mb={4}>
-              <FormLabel>Title</FormLabel>
+            <FormControl id="description" mb={4}>
+              <FormLabel>Description</FormLabel>
               <Input
-                name="title"
-                value={newBooking.title}
-                onChange={handleInputChange}
-                placeholder="Title"
+                name="description"
+                placeholder="Description"
               />
             </FormControl>
             <FormControl id="location" mb={4}>
               <FormLabel>Location</FormLabel>
               <Input
                 name="location"
-                value={newBooking.location}
-                onChange={handleInputChange}
                 placeholder="Location"
+              />
+            </FormControl>
+            <FormControl id="date" mb={4}>
+              <FormLabel>Date</FormLabel>
+              <Input
+                name="date"
+                type="date"
+                placeholder="Date"
               />
             </FormControl>
             <FormControl id="time" mb={4}>
               <FormLabel>Time</FormLabel>
               <Input
                 name="time"
-                value={newBooking.time}
-                onChange={handleInputChange}
+                type="time"
                 placeholder="Time"
               />
             </FormControl>
@@ -163,11 +179,7 @@ const Bookings = () => {
         </ModalContent>
       </Modal>
     </Box>
-
-    
   );
 };
 
 export default Bookings;
-
-
