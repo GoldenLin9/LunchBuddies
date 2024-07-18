@@ -133,7 +133,7 @@ class Create(APIView):
         members = request.data['members']
         description = request.data['description']
 
-        booking = Booking(owner=owner, location=location, meeting_time=meeting_time, description=description)
+        booking = Booking(owner=owner, location=location, title = title, meeting_time=meeting_time, description=description)
         booking.save()
 
         booking.members.set(members)
@@ -167,12 +167,13 @@ class Book(APIView):
         print("ENTERED")
         owner = request.user
         print(owner)
+        title = request.data['title']
         location = request.data['location']
         meeting_time = request.data['meeting_time']
         members = request.data['members']
         description = request.data['description']
 
-        booking = Booking(owner=owner, location=location, meeting_time=meeting_time, description=description)
+        booking = Booking(owner=owner, location=location, title = title, meeting_time=meeting_time, description=description)
         booking.save()
 
         booking.members.set(members)
