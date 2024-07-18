@@ -33,7 +33,7 @@ function convertMeetingTime(meetingTime) {
   };
 }
 
-const JoinedChatCard = ({ id, title, meeting_time, location, members, onOpen }) => {
+const JoinedChatCard = ({ id, title, meeting_time, location, members, onOpen, currentNames, setCurrentNames }) => {
   let api = useAxios();
   const { date, time } = convertMeetingTime(meeting_time);
   const [names, setNames] = useState([]);
@@ -51,6 +51,7 @@ const JoinedChatCard = ({ id, title, meeting_time, location, members, onOpen }) 
         names.push(response.data.username);
       }
       setNames(names);
+      setCurrentNames({...currentNames, id: names});
     };
     fetchMembers();
   }, []);
@@ -107,6 +108,7 @@ const Home = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedChat, setSelectedChat] = useState(null);
   const [joinedGroups, setJoinedGroups] = useState([]);
+  const [currentNames, setCurrentNames] = useState({});
   const { user } = useContext(AuthContext);
   const toast = useToast();
   const navigate = useNavigate();
@@ -208,7 +210,7 @@ const Home = () => {
             console.log(`In joined: ${joinedGroups} somehow joined groups has a length of ${joinedGroups.length} and is of type ${typeof(joinedGroups)}`),
             <SimpleGrid columns={[1, 2, 3]} spacing={4}>
               {joinedGroups.map(group => (
-                <JoinedChatCard key={group.id} {...group} onOpen={handleOpenModal} />
+                <JoinedChatCard key={group.id} {...group} onOpen={handleOpenModal} setCurrentNames={setCurrentNames} />
               ))}
             </SimpleGrid>
           ) : (
@@ -241,7 +243,7 @@ const Home = () => {
               <Text><strong>Time:</strong> {selectedChat?.time}</Text>
               <Text><strong>Location:</strong> {selectedChat?.location}</Text>
               <Text><strong>Description:</strong> {selectedChat?.description}</Text>
-              <Text><strong>Participants:</strong> {selectedChat?.participants.join(', ')}</Text>
+              <Text><strong>Participants:</strong> {Object.values(currentNames).join(', ')}</Text>
             </VStack>
           </ModalBody>
           <ModalFooter>
