@@ -19,7 +19,7 @@ class Booking(models.Model):
     description = models.TextField()
 
     def __str__(self):
-        return f"{self.owner.username} - {self.location} - {self.meeting_time} - {self.description}"
+        return f"#{self.id} {self.owner.username} - {self.location} - {self.meeting_time} - {self.description}"
     
 
 class Message(models.Model):
