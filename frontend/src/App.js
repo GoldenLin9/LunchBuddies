@@ -10,8 +10,10 @@ import Register from './pages/Register';
 import Profile from './pages/Profile';
 import Bookings from './pages/Bookings';
 import Chat from './pages/Chat';
+import Testing from './pages/Testing'
 
 import { AuthProvider } from './context/AuthContext';
+import ProfileSetup from './pages/ProfileSetup';
 
 
 
@@ -34,6 +36,8 @@ function App() {
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/bookings" element={<Bookings />} />
                 <Route path="/chat/:id" element={<Chat />} />
+                <Route path="/profile-setup" element={<ProfileSetup />} />
+                <Route path="/testing" element={<Testing />} />
               </Routes>
             </Box>
             <Footer />

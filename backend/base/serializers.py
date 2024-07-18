@@ -5,6 +5,7 @@ from .models import Booking, User
 class BookingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Booking
+        fields = ['id', 'owner', 'location', 'meeting_time', 'members', 'description']
         fields = '__all__'
     
     def create(self, validated_data):

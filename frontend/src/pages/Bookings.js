@@ -1,6 +1,4 @@
-// src/pages/Bookings.js
-import React, { useState } from 'react';
-
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   VStack,
@@ -18,34 +16,74 @@ import {
   FormControl,
   FormLabel,
   Input,
-  HStack,
-  useToast,
   Stack,
   Select,
+  useToast,
 } from '@chakra-ui/react';
-import BookingCard from '../components/BookingCard';
+import BookingCardd from '../components/BookingCardd';
 
 const Bookings = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [location, setLocation] = useState('');
   const [date, setDate] = useState('');
   const toast = useToast();
-  const [bookings, setBookings] = useState([
-    { title: "Tech Lunch", location: "Byte Cafe", time: "12:30 PM" },
-    { title: "Casual Meetup", location: "Park Picnic Area", time: "1:00 PM" },
-    { title: "Business Networking", location: "Downtown Diner", time: "12:00 PM" },
-  ]);
-  const [newBooking, setNewBooking] = useState({ title: "", location: "", time: "" });
+  const [bookings, setBookings] = useState([]);
+  const [newBooking, setNewBooking] = useState({ title: "", location: "", time: "", date: "", description: "" });
+
+  useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        const response = await fetch('http://127.0.0.1:8000/api/book/');
+        if (!response.ok) {
+          throw new Error('Failed to fetch bookings');
+        }
+        const data = await response.json();
+        setBookings(data);
+      } catch (error) {
+        console.error('Error fetching bookings:', error);
+        toast({ title: 'Error Fetching Bookings', status: 'error' });
+      }
+    };
+
+    fetchBookings();
+  }, [toast]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewBooking((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSave = () => {
-    setBookings((prev) => [...prev, newBooking]);
-    setNewBooking({ title: "", location: "", time: "" });
-    onClose();
+  const handleSave = async () => {
+    const bookingData = {
+      title: newBooking.title,
+      location: newBooking.location,
+      time: newBooking.time,
+      date: newBooking.date,
+      description: newBooking.description,
+    };
+
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/book/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bookingData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create booking');
+      }
+
+      const createdBooking = await response.json();
+      setBookings((prev) => [...prev, createdBooking]);
+      toast({ title: 'Booking created!', status: 'success' });
+      setNewBooking({ title: "", location: "", time: "", date: "", description: "" });
+      onClose();
+    } catch (error) {
+      console.error('Error creating booking:', error);
+      toast({ title: 'Failed to create booking', status: 'error' });
+    }
   };
 
   return (
@@ -79,33 +117,15 @@ const Bookings = () => {
         </Stack>
 
         <SimpleGrid columns={[1, 2, 3]} spacing={6}>
-          <BookingCard 
-            id="1" 
-            title="Tech Lunch" 
-            location="Byte Cafe" 
-            time="12:30 PM" 
-            date="2024-07-16"
-            participants={["John", "Alice", "Bob"]}
-            description="Join us for a lunch discussion about the latest tech trends!"
-          />
-          <BookingCard 
-            id="2" 
-            title="Casual Meetup" 
-            location="Park Picnic Area" 
-            time="1:00 PM" 
-            date="2024-07-17"
-            participants={["Emma", "Michael"]}
-            description="Relaxed outdoor lunch. Bring your own food!"
-          />
-          <BookingCard 
-            id="3" 
-            title="Business Networking" 
-            location="Downtown Diner" 
-            time="12:00 PM" 
-            date="2024-07-18"
-            participants={["Sarah", "David", "Lisa", "Tom"]}
-            description="Network with local professionals over lunch."
-          />
+          {bookings.map((booking) => (
+            <BookingCardd 
+              key={booking.id} 
+              location={booking.location} 
+              time={booking.time} 
+              date={booking.date}
+              description={booking.description}
+            />
+          ))}
         </SimpleGrid>
       </VStack>
 
@@ -139,7 +159,27 @@ const Bookings = () => {
                 name="time"
                 value={newBooking.time}
                 onChange={handleInputChange}
+                type="time"
                 placeholder="Time"
+              />
+            </FormControl>
+            <FormControl id="date" mb={4}>
+              <FormLabel>Date</FormLabel>
+              <Input
+                name="date"
+                type="date"
+                value={newBooking.date}
+                onChange={handleInputChange}
+                placeholder="Date"
+              />
+            </FormControl>
+            <FormControl id="description" mb={4}>
+              <FormLabel>Description</FormLabel>
+              <Input
+                name="description"
+                value={newBooking.description}
+                onChange={handleInputChange}
+                placeholder="Description"
               />
             </FormControl>
           </ModalBody>
@@ -152,11 +192,7 @@ const Bookings = () => {
         </ModalContent>
       </Modal>
     </Box>
-
-    
   );
 };
 
 export default Bookings;
-
-

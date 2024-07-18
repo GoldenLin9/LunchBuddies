@@ -13,7 +13,7 @@ urlpatterns = [
     path("book/", views.Book.as_view(), name="book"),
     path("join/", views.Join.as_view(), name="join"),
     path("leave/", views.Leave.as_view(), name="leave"),
-
+    # path('api/book/', views.create_booking, name='create_booking'),
     path("register/", views.RegisterView.as_view(), name="register"),
 
     path('token/', views.MyTokenObtainPairView.as_view(), name='token_obtain_pair'),

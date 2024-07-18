@@ -6,7 +6,7 @@ from django.shortcuts import render
 
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-
+from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import permissions
 
@@ -70,40 +70,74 @@ class Leave(APIView):
         booking.members.remove(user)
         return HttpResponse("User left", status=201)
 
-class Book(APIView):
+# class Book(APIView):
 
+#     permission_classes = (permissions.AllowAny,)
+
+#     def get_queryset(self):
+#         return Booking.objects.all()
+    
+#     def get(self, request):
+#         booking = self.get_queryset().filter(pk = request.data['id'])
+#         serializer = BookingSerializer(booking, many=True)
+#         return HttpResponse(serializer.data, status=200)
+
+#     def post(self, request):
+
+#         serializer = BookingSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return HttpResponse("Booking created", status=201)
+#         else:
+#             return HttpResponse("Booking not created", status=400)
+
+#     def put(self, request):
+#         booking = Booking.objects.get(id=request.data['id'])
+#         serializer = BookingSerializer(booking, data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return HttpResponse("Booking updated", status=200)
+#         else:
+#             return HttpResponse("Booking not updated", status=400)
+        
+#     def delete(self, request):
+#         booking = Booking.objects.get(id=request.data['id'])
+#         booking.delete()
+#         return HttpResponse("Booking deleted", status=200)
+
+class Book(APIView):
     permission_classes = (permissions.AllowAny,)
 
     def get_queryset(self):
         return Booking.objects.all()
     
     def get(self, request):
-        booking = self.get_queryset().filter(pk = request.data['id'])
-        serializer = BookingSerializer(booking, many=True)
-        return HttpResponse(serializer.data, status=200)
+        # Get all bookings without filtering by id
+        bookings = self.get_queryset()
+        serializer = BookingSerializer(bookings, many=True)
+        return Response(serializer.data, status=200)
 
     def post(self, request):
-
         serializer = BookingSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return HttpResponse("Booking created", status=201)
+            return Response("Booking created", status=201)
         else:
-            return HttpResponse("Booking not created", status=400)
+            return Response("Booking not created", status=400)
 
     def put(self, request):
         booking = Booking.objects.get(id=request.data['id'])
         serializer = BookingSerializer(booking, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return HttpResponse("Booking updated", status=200)
+            return Response("Booking updated", status=200)
         else:
-            return HttpResponse("Booking not updated", status=400)
+            return Response("Booking not updated", status=400)
         
     def delete(self, request):
         booking = Booking.objects.get(id=request.data['id'])
         booking.delete()
-        return HttpResponse("Booking deleted", status=200)
+        return Response("Booking deleted", status=200)
 
 
 
