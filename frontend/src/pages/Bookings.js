@@ -83,6 +83,10 @@ const Bookings = () => {
 
     api.get('allBooks/').then((response) => {
       console.log("response.data: ", response.data)
+      let time = new Date(response.data[0].meeting_time).toLocaleTimeString()
+      let date = new Date(response.data[0].meeting_time).toLocaleDateString()
+      console.log("time: ", time)
+      console.log("date: ", date)
       setAllBookings(response.data)
       setBookings(response.data)
       setLoading(false)
@@ -224,7 +228,7 @@ const Bookings = () => {
       <BookingCard 
         key={booking.id}
         id={booking.id}
-        title={`Booking ${booking.id}`}
+        title={booking.title}
         location={booking.location}
         time={new Date(booking.meeting_time).toLocaleTimeString()}
         date={new Date(booking.meeting_time).toLocaleDateString()}
