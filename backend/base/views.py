@@ -130,7 +130,9 @@ class Book(APIView):
         return Response(serializer.data, status=200)
 
     def post(self, request):
+        print("ENTERED")
         owner = request.user
+        print(owner)
         location = request.data['location']
         meeting_time = request.data['meeting_time']
         members = request.data['members']
@@ -150,8 +152,8 @@ class Book(APIView):
         # else:
         #     return HttpResponse("Booking not created", status=400)
 
-    def put(self, request):
-        booking = Booking.objects.get(id=request.data['id'])
+    def put(self, request, pk):
+        booking = Booking.objects.get(id = pk)
 
 
         if booking.owner != request.user:

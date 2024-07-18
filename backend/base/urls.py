@@ -10,7 +10,9 @@ from rest_framework_simplejwt.views import (
 
 urlpatterns = [
     path("", views.test, name="test"),
-    path("book/<int:pk>", views.Book.as_view(), name="book"),
+    path("book/<int:pk>", views.Book.as_view(), name="get-book"),
+    path("book/", views.Book.as_view(), name = "book"),
+    
     path("myBooks/", views.Books.as_view(), name="books"),
     path("allBooks/", views.AllBooks.as_view(), name = "all-books"),
 
