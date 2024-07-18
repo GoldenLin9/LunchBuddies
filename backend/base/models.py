@@ -13,6 +13,7 @@ class User(AbstractUser):
 class Booking(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     location = models.CharField(max_length=100)
+    title = models.CharField(max_length=100)
     
     meeting_time = models.DateTimeField()
     members = models.ManyToManyField(User, related_name='members')
