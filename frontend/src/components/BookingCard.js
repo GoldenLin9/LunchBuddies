@@ -2,9 +2,13 @@
 import React, { useState } from 'react';
 import { Box, Heading, Text, Button, useToast, VStack, HStack, Badge, Avatar, AvatarGroup } from '@chakra-ui/react';
 
+import useAxios from '../hooks/useAxios';
+
 const BookingCard = ({ id, title, location, time, date, participants, description }) => {
   const [isJoined, setIsJoined] = useState(false);
   const toast = useToast();
+
+  let api = useAxios();
 
   const handleJoin = () => {
     setIsJoined(true);
@@ -16,6 +20,14 @@ const BookingCard = ({ id, title, location, time, date, participants, descriptio
       isClosable: true,
     });
     // Here you would typically send a request to your backend to join the group
+
+    api.post(`join/`, { book_id: id })
+      .then((response) => {
+        console.log('API response:', response.data);
+      })
+      .catch((error) => {
+        console.error('API error:', error);
+      });
   };
 
   return (

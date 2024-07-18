@@ -93,11 +93,15 @@ class Books(APIView):
         return Booking.objects.all()
     
     def get(self, request):
-
+        print(f"GET request received from user: {request.user}")
+        
         booking = self.get_queryset().filter(Q(members__in=[request.user]) | Q(owner = request.user)).distinct()
-
+        print(f"Query executed. Number of bookings found: {booking.count()}")
 
         serializer = BookingSerializer(booking, many=True)
+        print(f"Data serialized. Number of serialized bookings: {len(serializer.data)}")
+        
+        print(f"Returning response with status code 200")
         return Response(serializer.data, status=200)
 
 class AllBooks(APIView):
@@ -191,8 +195,8 @@ class Book(APIView):
         booking = Booking.objects.get(id = pk)
 
 
-        if booking.owner != request.user:
-            return Response("You are not the owner of this booking", status=403)
+        # if booking.owner != request.user:
+        #     return Response("You are not the owner of this booking", status=403)
 
         serializer = BookingSerializer(booking, data=request.data)
         if serializer.is_valid():
