@@ -63,7 +63,7 @@ class Join(APIView):
 
     def post(self, request):
 
-        booking = Booking.objects.get(id=request.data['id'])
+        booking = Booking.objects.get(id=request.data['book_id'])
         booking.members.add(request.user)
         return HttpResponse("User joined", status=201)
 
@@ -79,7 +79,7 @@ class Leave(APIView):
 
     def post(self, request):
 
-        booking = Booking.objects.get(id=request.data['id'])
+        booking = Booking.objects.get(id=request.data['book_id'])
         booking.members.remove(request.user)
         return HttpResponse("User left", status=201)
     
@@ -247,14 +247,17 @@ class UserView(APIView):
     def get_queryset(self):
         return User.objects.all()
     
+    
     def put(self, request):
         user = User.objects.get(id=request.user.id)
-        serializer = UserSerializer(user, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response("User updated", status=200)
-        else:
-            return Response("User not updated", status=400)
+        user.age = request.data['age']
+        user.major = request.data['major']
+        user.bio = request.data['bio']
+        user.year = request.data['year']
+        user.save()
+
+        return Response("User updated", status=200)
+
         
     def delete(self, request):
         user = User.objects.get(id=request.user.id)
@@ -263,5 +266,18 @@ class UserView(APIView):
     
     def get(self, request):
         user = User.objects.get(id=request.user.id)
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=200)
+    
+class GetUserView(APIView):
+
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (JWTAuthentication,)
+
+    def get_queryset(self):
+        return User.objects.all()
+    
+    def get(self, request, pk):
+        user = User.objects.get(id=pk)
         serializer = UserSerializer(user)
         return Response(serializer.data, status=200)
