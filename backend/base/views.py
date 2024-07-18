@@ -98,7 +98,7 @@ class Books(APIView):
 
 
         serializer = BookingSerializer(booking, many=True)
-        return HttpResponse(serializer.data, status=200)
+        return Response(serializer.data, status=200)
 
 class AllBooks(APIView):
 
@@ -114,7 +114,7 @@ class AllBooks(APIView):
         booking = self.get_queryset()
 
         serializer = BookingSerializer(booking, many = True)
-        return HttpResponse(serializer.data, status = 200)
+        return Response(serializer.data, status = 200)
 
 
 class Create(APIView):
@@ -138,7 +138,7 @@ class Create(APIView):
 
         booking.members.set(members)
 
-        return HttpResponse("Booking created", status=201)
+        return Response("Booking created", status=201)
 
         # serializer = BookingSerializer(data=request.data)
         # if serializer.is_valid():

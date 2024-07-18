@@ -5,6 +5,8 @@ import { useParams } from 'react-router-dom';
 import useAxios from '../hooks/useAxios';
 import AuthContext from '../context/AuthContext';
 
+import '../styles/chat.css'
+
 const Chat = () => {
   const { id } = useParams();
   // const [messages, setMessages] = useState([
@@ -75,6 +77,7 @@ const Chat = () => {
             prevMessages[i].author = response.data.username
           })
         })).then(() => {
+          console.log(prevMessages)
           setMessages(prevMessages)
         })
       });
@@ -103,8 +106,31 @@ const Chat = () => {
             //   <Text fontWeight="bold">{message.sender}:</Text>
             //   <Text>{message.text}</Text>
             // </Box>
+            message.author === user.username ? 
+            <div className = "message" key = {i}>
+              <div className = "my-message">
+              <div className = "message-author">
+                  You
+                </div>
+                <div className = "message-content">
+                  {message.content}
+                </div>
+              </div>
+            </div> : 
+            
+            <div className = "message" key = {i}>
+              <div className = "your-message">
 
-            <div key = {i}>{message.author}: {message.content}</div>
+                <div className = "message-author">
+                  {message.author} 
+                </div>
+                
+                <div className = "message-content">
+                  {message.content}
+                </div>
+              </div>
+            </div>
+
           )) : <div>LOADING MESSAGES</div>}
         </Box>
         <HStack>

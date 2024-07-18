@@ -124,20 +124,8 @@ const Header = () => {
         <NavButton to="/">Home</NavButton>
         <NavButton to="/bookings">Bookings</NavButton>
         <NavButton to="/profile">Profile</NavButton>
-        <Menu isOpen={isDropdownOpen} onClose={() => setIsDropdownOpen(false)}>
-          <MenuButton
-            as={IconButton}
-            icon={<FaPowerOff />}
-            colorScheme="black"
-            variant="ghost"
-            _hover={{ bg: "teal.600" }}
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            aria-label="Logout"
-          />
-          <MenuList>
-            <MenuItem onClick={handleLogout}>Sign Out</MenuItem>
-          </MenuList>
-        </Menu>
+
+        <Button colorScheme='teal' onClick={handleLogout}>Logout</Button>
       </Flex>
     </Box>
   );

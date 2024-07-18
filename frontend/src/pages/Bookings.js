@@ -24,6 +24,8 @@ import {
 } from '@chakra-ui/react';
 import BookingCard from '../components/BookingCard';
 
+import useAxios from '../hooks/useAxios';
+
 const Bookings = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [location, setLocation] = useState('');
@@ -38,39 +40,48 @@ const Bookings = () => {
     members: []
   });
 
+  let api = useAxios();
+
   const fetchBookings = async () => {
-    try {
-      const response = await axios.get('http://localhost:8000/api/allBooks/', {
-        headers: {
-          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzIxMzUyMTYxLCJpYXQiOjE3MjEyNjU3NjEsImp0aSI6IjJhODczNDZlZDVmYjQ1OTg4ZDk2Y2ZhZDE1YTRhY2EzIiwidXNlcl9pZCI6MSwidXNlcm5hbWUiOiJHb2xkZW4iLCJhZ2UiOm51bGwsIm1ham9yIjpudWxsLCJiaW8iOm51bGx9.dVRHHJDUH5Hb2Oo4cdU-GetUzeNHwaaas25TUQJj9OU'
-        }
-      });
+    // try {
+    //   const response = await axios.get('http://localhost:8000/api/allBooks/', {
+    //     headers: {
+    //       'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzIxMzUyMTYxLCJpYXQiOjE3MjEyNjU3NjEsImp0aSI6IjJhODczNDZlZDVmYjQ1OTg4ZDk2Y2ZhZDE1YTRhY2EzIiwidXNlcl9pZCI6MSwidXNlcm5hbWUiOiJHb2xkZW4iLCJhZ2UiOm51bGwsIm1ham9yIjpudWxsLCJiaW8iOm51bGx9.dVRHHJDUH5Hb2Oo4cdU-GetUzeNHwaaas25TUQJj9OU'
+    //     }
+    //   });
   
-      console.log('API response:', response.data);
-      console.log('Type of response.data:', typeof response.data);
+    //   console.log('API response:', response.data);
+    //   console.log('Type of response.data:', typeof response.data);
   
-      const objStrings = response.data.match(/\{[^}]+\}/g);
-      const bookingsArray = objStrings.map(str => {
-        const jsonStr = str.replace(/'/g, '"');
-        return JSON.parse(jsonStr);
-      });
+    //   const objStrings = response.data.match(/\{[^}]+\}/g);
+    //   const bookingsArray = objStrings.map(str => {
+    //     const jsonStr = str.replace(/'/g, '"');
+    //     return JSON.parse(jsonStr);
+    //   });
   
-      console.log('Parsed bookings:', bookingsArray);
+    //   console.log('Parsed bookings:', bookingsArray);
   
-      setBookings(bookingsArray);
-      setLoading(false);
-    } catch (error) {
-      console.error("There was an error fetching the bookings!", error);
-      toast({
-        title: "Error fetching bookings",
-        description: "Please try again later.",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
-      setBookings([]);
-      setLoading(false);
-    }
+    //   setBookings(bookingsArray);
+    //   setLoading(false);
+    // } catch (error) {
+    //   console.error("There was an error fetching the bookings!", error);
+    //   toast({
+    //     title: "Error fetching bookings",
+    //     description: "Please try again later.",
+    //     status: "error",
+    //     duration: 3000,
+    //     isClosable: true,
+    //   });
+    //   setBookings([]);
+    //   setLoading(false);
+    // }
+
+    api.get('allBooks/').then((response) => {
+      console.log("response.data: ", response.data)
+      setBookings(response.data)
+      setLoading(false)
+    })
+
   };
   
   useEffect(() => {
@@ -122,6 +133,14 @@ const Bookings = () => {
     setNewBooking(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleChangeLocation = (e) => {
+    console.log(e.target.value)
+    console.log(bookings[0])
+    console.log(bookings[0].location)
+    setBookings(bookings.map(booking => booking.location === e.target.value));
+    setLocation(e.target.value);
+  }
+
   return (
     <Box maxW="container.xl" mx="auto" py={10}>
       <VStack spacing={8} align="stretch">
@@ -131,11 +150,10 @@ const Bookings = () => {
           <Select 
             placeholder="Filter by location" 
             value={location} 
-            onChange={(e) => setLocation(e.target.value)}
+            onChange={handleChangeLocation}
           >
-            <option value="Byte Cafe">Byte Cafe</option>
-            <option value="Park Picnic Area">Park Picnic Area</option>
-            <option value="Downtown Diner">Downtown Diner</option>
+            <option value="63 South">63 South</option>
+            <option value="Knightros">Knightros</option>
           </Select>
           <Input 
             type="date" 

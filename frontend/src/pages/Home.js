@@ -1,7 +1,9 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import { Box, VStack, Heading, SimpleGrid, Text, Button, HStack, Badge, Avatar, AvatarGroup, Center, Flex } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
 import Slider from 'react-slick';
+
+import AuthContext from '../context/AuthContext';
 
 const JoinedChatCard = ({ id, title, date, time, location, participants }) => (
   <Box borderWidth={1} borderRadius="lg" p={3} boxShadow="md" bg="white">
@@ -76,10 +78,12 @@ const Home = () => {
     { title: "Code Review Session", location: "Downtown Diner", time: "3:00 PM" },
   ];
 
+  let { user } = useContext(AuthContext);
+
   return (
     <Flex direction="column" minHeight="100vh" maxW="container.xl" mx="auto" py={5}>
       <VStack spacing={5} align="stretch" flex="1">
-        <Heading size="lg" textAlign="center">Welcome to Lunch Meetup</Heading>
+        <Heading size="lg" textAlign="center">Hello {user.username}! Welcome to Lunch Meetup</Heading>
         <Text textAlign="center">Connect with others and enjoy lunch together!</Text>
         
         <Box>
