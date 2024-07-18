@@ -124,8 +124,9 @@ class Book(APIView):
         return Booking.objects.all()
     
     def get(self, request, pk):
-        booking = self.get_queryset().filter(pk = pk)
-        serializer = BookingSerializer(booking, many=False)
+        print("GETTING A BOOK")
+        booking = self.get_queryset().filter(pk = pk).first()
+        serializer = BookingSerializer(booking)
         return Response(serializer.data, status=200)
 
     def post(self, request):
