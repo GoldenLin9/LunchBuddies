@@ -31,54 +31,95 @@ const Bookings = () => {
   const toast = useToast();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true); // Add loading state
+  const [newBooking, setNewBooking] = useState({
+    description: '',
+    location: '',
+    meeting_time: '',
+    members: []
+  });
 
+  const fetchBookings = async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/api/allBooks/', {
+        headers: {
+          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzIxMzUyMTYxLCJpYXQiOjE3MjEyNjU3NjEsImp0aSI6IjJhODczNDZlZDVmYjQ1OTg4ZDk2Y2ZhZDE1YTRhY2EzIiwidXNlcl9pZCI6MSwidXNlcm5hbWUiOiJHb2xkZW4iLCJhZ2UiOm51bGwsIm1ham9yIjpudWxsLCJiaW8iOm51bGx9.dVRHHJDUH5Hb2Oo4cdU-GetUzeNHwaaas25TUQJj9OU'
+        }
+      });
+  
+      console.log('API response:', response.data);
+      console.log('Type of response.data:', typeof response.data);
+  
+      const objStrings = response.data.match(/\{[^}]+\}/g);
+      const bookingsArray = objStrings.map(str => {
+        const jsonStr = str.replace(/'/g, '"');
+        return JSON.parse(jsonStr);
+      });
+  
+      console.log('Parsed bookings:', bookingsArray);
+  
+      setBookings(bookingsArray);
+      setLoading(false);
+    } catch (error) {
+      console.error("There was an error fetching the bookings!", error);
+      toast({
+        title: "Error fetching bookings",
+        description: "Please try again later.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+      setBookings([]);
+      setLoading(false);
+    }
+  };
+  
   useEffect(() => {
-    const fetchBookings = async () => {
-      try {
-        const response = await axios.get('http://localhost:8000/api/allBooks/', {
-          headers: {
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzIxMzUyMTYxLCJpYXQiOjE3MjEyNjU3NjEsImp0aSI6IjJhODczNDZlZDVmYjQ1OTg4ZDk2Y2ZhZDE1YTRhY2EzIiwidXNlcl9pZCI6MSwidXNlcm5hbWUiOiJHb2xkZW4iLCJhZ2UiOm51bGwsIm1ham9yIjpudWxsLCJiaW8iOm51bGx9.dVRHHJDUH5Hb2Oo4cdU-GetUzeNHwaaas25TUQJj9OU'
-          }
-        });
-  
-        console.log('API response:', response.data);
-        console.log('Type of response.data:', typeof response.data);
-  
-        // Split the string into individual object strings
-        const objStrings = response.data.match(/\{[^}]+\}/g);
-  
-        // Parse each object string individually
-        const bookingsArray = objStrings.map(str => {
-          // Replace single quotes with double quotes
-          const jsonStr = str.replace(/'/g, '"');
-          return JSON.parse(jsonStr);
-        });
-  
-        console.log('Parsed bookings:', bookingsArray);
-  
-        setBookings(bookingsArray);
-        setLoading(false);
-      } catch (error) {
-        console.error("There was an error fetching the bookings!", error);
-        toast({
-          title: "Error fetching bookings",
-          description: "Please try again later.",
-          status: "error",
-          duration: 3000,
-          isClosable: true,
-        });
-        setBookings([]);
-        setLoading(false);
-      }
-    };
-  
     fetchBookings();
-  }, [toast]);
+  }, []);
 
-  const handleSave = () => {
-    // Implement save logic here, e.g., sending a POST request to save the booking
-    console.log("Save button clicked");
-    onClose(); // Close the modal after saving
+  const handleSave = async () => {
+    try {
+      const formattedTime = new Date(newBooking.meeting_time).toISOString();
+      const dataToSend = {
+        ...newBooking,
+        meeting_time: formattedTime,
+        members: [2, 3, 4] // You might want to make this dynamic in the future
+      };
+  
+      const response = await axios.post('http://localhost:8000/api/create/', dataToSend, {
+        headers: {
+          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzIxMzUyMTYxLCJpYXQiOjE3MjEyNjU3NjEsImp0aSI6IjJhODczNDZlZDVmYjQ1OTg4ZDk2Y2ZhZDE1YTRhY2EzIiwidXNlcl9pZCI6MSwidXNlcm5hbWUiOiJHb2xkZW4iLCJhZ2UiOm51bGwsIm1ham9yIjpudWxsLCJiaW8iOm51bGx9.dVRHHJDUH5Hb2Oo4cdU-GetUzeNHwaaas25TUQJj9OU'
+        }
+      });
+  
+      console.log('Booking created:', response.data);
+      toast({
+        title: "Booking created",
+        description: "Your booking has been successfully created.",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+  
+      // Refresh the bookings list
+      fetchBookings();
+  
+      onClose();
+    } catch (error) {
+      console.error("Error creating booking:", error);
+      toast({
+        title: "Error creating booking",
+        description: "There was an error creating your booking. Please try again.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewBooking(prev => ({ ...prev, [name]: value }));
   };
 
   return (
@@ -139,37 +180,35 @@ const Bookings = () => {
           <ModalHeader>Create a New Booking</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <FormControl id="description" mb={4}>
-              <FormLabel>Description</FormLabel>
-              <Input
-                name="description"
-                placeholder="Description"
-              />
-            </FormControl>
-            <FormControl id="location" mb={4}>
-              <FormLabel>Location</FormLabel>
-              <Input
-                name="location"
-                placeholder="Location"
-              />
-            </FormControl>
-            <FormControl id="date" mb={4}>
-              <FormLabel>Date</FormLabel>
-              <Input
-                name="date"
-                type="date"
-                placeholder="Date"
-              />
-            </FormControl>
-            <FormControl id="time" mb={4}>
-              <FormLabel>Time</FormLabel>
-              <Input
-                name="time"
-                type="time"
-                placeholder="Time"
-              />
-            </FormControl>
-          </ModalBody>
+  <FormControl id="description" mb={4}>
+    <FormLabel>Description</FormLabel>
+    <Input
+      name="description"
+      placeholder="Description"
+      value={newBooking.description}
+      onChange={handleInputChange}
+    />
+  </FormControl>
+  <FormControl id="location" mb={4}>
+    <FormLabel>Location</FormLabel>
+    <Input
+      name="location"
+      placeholder="Location"
+      value={newBooking.location}
+      onChange={handleInputChange}
+    />
+  </FormControl>
+  <FormControl id="meeting_time" mb={4}>
+    <FormLabel>Date and Time</FormLabel>
+    <Input
+      name="meeting_time"
+      type="datetime-local"
+      placeholder="Date and Time"
+      value={newBooking.meeting_time}
+      onChange={handleInputChange}
+    />
+  </FormControl>
+</ModalBody>
           <ModalFooter>
             <Button colorScheme="blue" mr={3} onClick={handleSave}>
               Save
