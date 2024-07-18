@@ -127,6 +127,7 @@ class Create(APIView):
     
     def post(self, request):
         owner = request.user
+        title = request.data['title']
         location = request.data['location']
         meeting_time = request.data['meeting_time']
         members = request.data['members']
