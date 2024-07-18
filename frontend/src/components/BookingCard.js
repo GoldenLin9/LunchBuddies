@@ -23,19 +23,11 @@ const BookingCard = ({ id, title, location, time, date, participants, descriptio
       <VStack align="stretch" spacing={3}>
         <Heading size="md">{title}</Heading>
         <Text fontSize="sm" color="gray.600">{description}</Text>
-        <HStack>
+        <HStack spacing={2}>
           <Badge colorScheme="blue">{location}</Badge>
-          <Badge colorScheme="green">{date}</Badge>
-          <Badge colorScheme="purple">{time}</Badge>
+          <Badge colorScheme="green">{formatDate(date)}</Badge>
+          <Badge colorScheme="purple">{formatTime(time)}</Badge>
         </HStack>
-        <Box>
-          <Text fontSize="sm" fontWeight="bold" mb={1}>Participants:</Text>
-          <AvatarGroup size="sm" max={3}>
-            {participants.map((participant, index) => (
-              <Avatar key={index} name={participant} />
-            ))}
-          </AvatarGroup>
-        </Box>
         <Button 
           colorScheme={isJoined ? "green" : "teal"} 
           onClick={handleJoin} 
@@ -46,6 +38,17 @@ const BookingCard = ({ id, title, location, time, date, participants, descriptio
       </VStack>
     </Box>
   );
+};
+
+// Helper function to format date (assuming date is in ISO format)
+const formatDate = (dateString) => {
+  const options = { year: 'numeric', month: 'long', day: 'numeric' };
+  return new Date(dateString).toLocaleDateString('en-US', options);
+};
+
+// Helper function to format time (assuming time is in ISO format)
+const formatTime = (timeString) => {
+  return new Date(timeString).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 };
 
 export default BookingCard;
