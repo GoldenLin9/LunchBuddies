@@ -37,6 +37,8 @@ const Chat = () => {
     `ws://localhost:8000/ws/chat/${id}/`
   );
 
+  console.log("MY USER: ", user)
+
   chatSocket.onmessage = (e) => {
     const data = JSON.parse(e.data);
 
@@ -50,7 +52,8 @@ const Chat = () => {
     
     chatSocket.send(JSON.stringify({
       'message': newMessage,
-      'room_id': id
+      'room_id': id,
+      'author': user.user_id,
     }))
 
     setNewMessage('')

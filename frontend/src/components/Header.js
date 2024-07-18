@@ -75,10 +75,12 @@
 // };
 
 // export default Header;
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Box, Flex, Heading, Spacer, Button, IconButton, Menu, MenuButton, MenuList, MenuItem } from '@chakra-ui/react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FaPowerOff } from 'react-icons/fa';
+
+import AuthContext from '../context/AuthContext';
 
 const Header = () => {
   const location = useLocation();
@@ -98,8 +100,10 @@ const Header = () => {
     </Button>
   );
 
+  let {logout } = useContext(AuthContext)
+
   const handleLogout = () => {
-    // Your logout logic here (e.g., removing auth tokens, etc.)
+    logout();
     console.log('Logging out');
     // Redirect to login page
     navigate('/login');
