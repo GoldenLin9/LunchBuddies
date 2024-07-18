@@ -42,8 +42,9 @@ const Chat = () => {
 
     console.log("GOT: ", data)
 
-    setMessages([...messages, {content: data.message}]);
+    setMessages([...messages, {content: data.message, author: data.author}]);
   };
+
 
   function handleSendMessage() {
     
@@ -60,10 +61,24 @@ const Chat = () => {
   let api = useAxios();
 
   useEffect(()=> {
-    api.get(`chat/messages/${id}`).then((response) => {
-      console.log(response.data)
-      setMessages(response.data)
-    })
+    const fetchData = async() => {
+      api.get(`chat/messages/${id}`).then((response) => {
+
+        let prevMessages = response.data
+
+        Promise.all(prevMessages.map(async (message, i) => {
+          await api.get(`get-user/${message.author}`).then((response) => {
+            console.log("response.data.username: ", response.data.username)
+            prevMessages[i].author = response.data.username
+          })
+        })).then(() => {
+          setMessages(prevMessages)
+        })
+      });
+
+  }
+
+  fetchData()
 
   }, []);
 
@@ -85,7 +100,8 @@ const Chat = () => {
             //   <Text fontWeight="bold">{message.sender}:</Text>
             //   <Text>{message.text}</Text>
             // </Box>
-            <div key = {i}>{message.content}</div>
+
+            <div key = {i}>{message.author}: {message.content}</div>
           )) : <div>LOADING MESSAGES</div>}
         </Box>
         <HStack>

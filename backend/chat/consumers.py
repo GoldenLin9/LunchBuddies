@@ -38,10 +38,12 @@ class ChatConsumer(WebsocketConsumer):
         print("RECEIVED: ", message)
 
         async_to_sync(self.channel_layer.group_send)(
-            self.room_group_name, {"type": "chat_message", "content": message}
+            self.room_group_name, {"type": "chat_message", "content": message, "author": self.scope['user'].username}
         )
     
     def chat_message(self, event):
+        print("MY EVENT: ", event)
         message = event["content"]
+        author = event["author"]
 
-        self.send(text_data=json.dumps({"message": message}))
+        self.send(text_data=json.dumps({"message": message, "author": author}))
