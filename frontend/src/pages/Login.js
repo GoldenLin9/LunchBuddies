@@ -21,7 +21,6 @@ export default function Login() {
   function handleLogin(e) {
     e.preventDefault(); // Prevent default form submission
     login(username, password);
-    navigate('/');
   }
 
   return (

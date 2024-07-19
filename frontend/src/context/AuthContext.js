@@ -44,6 +44,7 @@ export const AuthProvider = ({children}) => {
             console.log(response.data);
             localStorage.setItem('access', response.data.access);
             localStorage.setItem('refresh', response.data.refresh);
+            navigate('/');
             
             setUser(jwtDecode(response.data.access));
             setAccess(response.data.access);
