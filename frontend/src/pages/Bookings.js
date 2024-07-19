@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import {
   Box,
@@ -25,12 +25,14 @@ import {
 import BookingCard from '../components/BookingCard';
 
 import useAxios from '../hooks/useAxios';
+import AuthContext from '../context/AuthContext';
 
 const Bookings = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [location, setLocation] = useState('');
   const [date, setDate] = useState('');
   const toast = useToast();
+  const [allBookings, setAllBookings] = useState([]);
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true); // Add loading state
   const [newBooking, setNewBooking] = useState({
@@ -41,6 +43,8 @@ const Bookings = () => {
   });
 
   let api = useAxios();
+
+  const { user } = useContext(AuthContext);
 
   const fetchBookings = async () => {
     // try {
@@ -75,11 +79,18 @@ const Bookings = () => {
     //   setBookings([]);
     //   setLoading(false);
     // }
+    
 
     api.get('allBooks/').then((response) => {
       console.log("response.data: ", response.data)
+      let time = new Date(response.data[0].meeting_time).toLocaleTimeString()
+      let date = new Date(response.data[0].meeting_time).toLocaleDateString()
+      console.log("time: ", time)
+      console.log("date: ", date)
+      setAllBookings(response.data)
       setBookings(response.data)
       setLoading(false)
+
     })
 
   };
@@ -88,22 +99,54 @@ const Bookings = () => {
     fetchBookings();
   }, []);
 
-  const handleSave = async () => {
-    try {
-      const formattedTime = new Date(newBooking.meeting_time).toISOString();
-      const dataToSend = {
-        ...newBooking,
-        meeting_time: formattedTime,
-        members: [2, 3, 4] // You might want to make this dynamic in the future
-      };
+  const handleCreate = async () => {
+    // try {
+    //   const formattedTime = new Date(newBooking.meeting_time).toISOString();
+    //   const dataToSend = {
+    //     ...newBooking,
+    //     meeting_time: formattedTime,
+    //     members: [2, 3, 4] // You might want to make this dynamic in the future
+    //   };
   
-      const response = await axios.post('http://localhost:8000/api/create/', dataToSend, {
-        headers: {
-          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzIxMzUyMTYxLCJpYXQiOjE3MjEyNjU3NjEsImp0aSI6IjJhODczNDZlZDVmYjQ1OTg4ZDk2Y2ZhZDE1YTRhY2EzIiwidXNlcl9pZCI6MSwidXNlcm5hbWUiOiJHb2xkZW4iLCJhZ2UiOm51bGwsIm1ham9yIjpudWxsLCJiaW8iOm51bGx9.dVRHHJDUH5Hb2Oo4cdU-GetUzeNHwaaas25TUQJj9OU'
-        }
-      });
+    //   const response = await axios.post('http://localhost:8000/api/create/', dataToSend, {
+    //     headers: {
+    //       'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzIxMzUyMTYxLCJpYXQiOjE3MjEyNjU3NjEsImp0aSI6IjJhODczNDZlZDVmYjQ1OTg4ZDk2Y2ZhZDE1YTRhY2EzIiwidXNlcl9pZCI6MSwidXNlcm5hbWUiOiJHb2xkZW4iLCJhZ2UiOm51bGwsIm1ham9yIjpudWxsLCJiaW8iOm51bGx9.dVRHHJDUH5Hb2Oo4cdU-GetUzeNHwaaas25TUQJj9OU'
+    //     }
+    //   });
   
-      console.log('Booking created:', response.data);
+    //   console.log('Booking created:', response.data);
+    //   toast({
+    //     title: "Booking created",
+    //     description: "Your booking has been successfully created.",
+    //     status: "success",
+    //     duration: 3000,
+    //     isClosable: true,
+    //   });
+  
+    //   // Refresh the bookings list
+    //   fetchBookings();
+  
+    //   onClose();
+    // } catch (error) {
+    //   console.error("Error creating booking:", error);
+    //   toast({
+    //     title: "Error creating booking",
+    //     description: "There was an error creating your booking. Please try again.",
+    //     status: "error",
+    //     duration: 3000,
+    //     isClosable: true,
+    //   });
+    // }
+
+    const formattedTime = new Date(newBooking.meeting_time).toISOString();
+    const dataToSend = {
+      ...newBooking,
+      meeting_time: formattedTime,
+      members: [user.id] // You might want to make this dynamic in the future
+    };
+
+    api.post('create/', dataToSend).then((response) => {
+      console.log("response.data: ", response.data)
       toast({
         title: "Booking created",
         description: "Your booking has been successfully created.",
@@ -116,7 +159,7 @@ const Bookings = () => {
       fetchBookings();
   
       onClose();
-    } catch (error) {
+    }).catch((error) => {
       console.error("Error creating booking:", error);
       toast({
         title: "Error creating booking",
@@ -125,19 +168,25 @@ const Bookings = () => {
         duration: 3000,
         isClosable: true,
       });
-    }
+    })
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
     setNewBooking(prev => ({ ...prev, [name]: value }));
+    console.log("new form data: ", newBooking)
   };
 
   const handleChangeLocation = (e) => {
-    console.log(e.target.value)
-    console.log(bookings[0])
-    console.log(bookings[0].location)
-    setBookings(bookings.map(booking => booking.location === e.target.value));
+
+    console.log("e.target.value: ", e.target.value)
+    if (e.target.value === "Show All") {
+      setBookings(allBookings);
+    } else {
+      setBookings(allBookings.filter(booking => booking.location === e.target.value));
+    }
+
     setLocation(e.target.value);
   }
 
@@ -152,6 +201,7 @@ const Bookings = () => {
             value={location} 
             onChange={handleChangeLocation}
           >
+            <option value="Show All">Show All</option>
             <option value="63 South">63 South</option>
             <option value="Knightros">Knightros</option>
           </Select>
@@ -178,12 +228,13 @@ const Bookings = () => {
       <BookingCard 
         key={booking.id}
         id={booking.id}
-        title={`Booking ${booking.id}`}
+        title={booking.title}
         location={booking.location}
         time={new Date(booking.meeting_time).toLocaleTimeString()}
         date={new Date(booking.meeting_time).toLocaleDateString()}
         description={booking.description}
         participants={booking.members}
+        joined={booking.members.includes(user.user_id)}
       />
     ))
   ) : (
@@ -199,6 +250,13 @@ const Bookings = () => {
           <ModalCloseButton />
           <ModalBody>
   <FormControl id="description" mb={4}>
+    <FormLabel>Title</FormLabel>
+    <Input
+      name="title"
+      placeholder="Title"
+      value={newBooking.title}
+      onChange={handleInputChange}
+    />
     <FormLabel>Description</FormLabel>
     <Input
       name="description"
@@ -228,8 +286,8 @@ const Bookings = () => {
   </FormControl>
 </ModalBody>
           <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={handleSave}>
-              Save
+            <Button colorScheme="blue" mr={3} onClick={handleCreate}>
+              Create
             </Button>
             <Button variant="ghost" onClick={onClose}>Cancel</Button>
           </ModalFooter>

@@ -39,6 +39,8 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['age'] = user.age
         token['major'] = user.major
         token['bio'] = user.bio
+        token['year'] = user.year
+        token['gender'] = user.gender
         # ...
 
         return token
@@ -256,6 +258,8 @@ class UserView(APIView):
     
     def put(self, request):
         user = User.objects.get(id=request.user.id)
+        user.username = request.data['username']
+        user.gender = request.data['gender']
         user.age = request.data['age']
         user.major = request.data['major']
         user.bio = request.data['bio']

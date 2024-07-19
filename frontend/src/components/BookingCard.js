@@ -4,10 +4,10 @@ import { Box, Heading, Text, Button, useToast, VStack, HStack, Badge, Avatar, Av
 
 import useAxios from '../hooks/useAxios';
 
-const BookingCard = ({ id, title, location, time, date, participants, description }) => {
-  const [isJoined, setIsJoined] = useState(false);
+const BookingCard = ({ id, title, location, time, date, participants, description, joined }) => {
+  const [isJoined, setIsJoined] = useState(joined);
   const toast = useToast();
-
+  
   let api = useAxios();
 
   const handleJoin = () => {
@@ -37,8 +37,8 @@ const BookingCard = ({ id, title, location, time, date, participants, descriptio
         <Text fontSize="sm" color="gray.600">{description}</Text>
         <HStack spacing={2}>
           <Badge colorScheme="blue">{location}</Badge>
-          <Badge colorScheme="green">{formatDate(date)}</Badge>
-          <Badge colorScheme="purple">{formatTime(time)}</Badge>
+          <Badge colorScheme="green">{date}</Badge>
+          <Badge colorScheme="purple">{time}</Badge>
         </HStack>
         <Button 
           colorScheme={isJoined ? "green" : "teal"} 

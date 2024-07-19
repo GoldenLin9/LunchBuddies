@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractUser
 # Create your models here.
 class User(AbstractUser):
     age = models.PositiveIntegerField(null=True, blank=True)
+    gender = models.CharField(max_length=100, null=True, blank=True)
     major = models.CharField(max_length=100, null=True, blank=True)
     bio = models.TextField(null=True, blank=True)
     year = models.PositiveIntegerField(null=True, blank=True)

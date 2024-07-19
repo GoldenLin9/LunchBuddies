@@ -58,7 +58,8 @@
 // export default Profile;
 
 // src/pages/Profile.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import AuthContext from '../context/AuthContext';
 import {
   Box,
   VStack,
@@ -82,21 +83,54 @@ import {
   Select,
 } from '@chakra-ui/react';
 import TabsSelection from '../components/TabsSelection';
+import useAxios from '../hooks/useAxios';
 
 const Profile = () => {
+
+  let { user } = useContext(AuthContext);
+
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [name, setName] = useState('John Doe');
-  const [email, setEmail] = useState('john@example.com');
+
+  const [username, setUsername] = useState();
+  const [bio, setBio] = useState();
+  const [year, setYear] = useState();
   const [interests, setInterests] = useState('Coding, Hiking, Food');
   const [hobbies, setHobbies] = useState('Reading, Gardening, Gaming');
   const [selectedInterests, setSelectedInterests] = useState([]);
   const [selectedHobbies, setSelectedHobbies] = useState([]);
-  const [major, setMajor] = useState('Computer Science');
-  const [age, setAge] = useState(25);
-  const [gender, setGender] = useState('Male');
+  const [major, setMajor] = useState();
+  const [age, setAge] = useState();
+  const [gender, setGender] = useState();
 
+  const [newUser, setNewUser] = useState({});
+  
+  let api = useAxios();
   const handleSave = () => {
-    console.log('Saving profile:', { name, email, interests, selectedInterests, selectedHobbies, major, age, gender });
+    console.log('Saving profile:', { username, interests, selectedInterests, selectedHobbies, major, age, gender });
+
+
+    api.put('user/', {
+      username: username,
+      age: parseInt(age),
+      major: major,
+      bio: bio,
+      year: parseInt(year),
+      gender: gender
+    }).then((response) => {
+      console.log('API response:', response.data);
+
+      setNewUser({
+        username: username,
+        age: age,
+        major: major,
+        bio: bio,
+        year: year,
+        gender: gender
+      });
+    }).catch((error) => {
+      console.error('API error:', error);
+    });
+
     onClose();
   };
 
@@ -112,7 +146,22 @@ const Profile = () => {
     );
   };
 
+
   useEffect(() => {
+
+    api.get(`get-user/${user.user_id}`)
+      .then((response) => {
+        console.log('API response:', response.data);
+        setNewUser(response.data);
+
+        setUsername(response.data.username);
+        setBio(response.data.bio);
+        setYear(response.data.year);
+        setMajor(response.data.major);
+        setAge(response.data.age);
+        setGender(response.data.gender)
+      })
+
     setInterests(selectedInterests.join(', '));
     setHobbies(selectedHobbies.join(', '));
   }, [selectedInterests, selectedHobbies]);
@@ -123,17 +172,17 @@ const Profile = () => {
         <Heading>Your Profile</Heading>
         <Grid templateColumns="repeat(2, 1fr)" gap={6}>
           <GridItem>
-            <Text fontSize="xl">Name: {name}</Text>
-            <Text fontSize="xl">Email: {email}</Text>
-            <Text fontSize="xl">Interests: {interests}</Text>
-            <Text fontSize="xl">Hobbies: {hobbies}</Text>
+            <Text fontSize="xl">Name: {newUser.username}</Text>
+            <Text fontSize="xl">Age: {newUser.age}</Text>
+            {/* <Text fontSize="xl">Interests: {newUser.interests}</Text>
+            <Text fontSize="xl">Hobbies: {newUser.hobbies}</Text> */}
           </GridItem>
           <GridItem>
-            <Text fontSize="xl">Major: {major}</Text>
-            <Text fontSize="xl">Age: {age}</Text>
-            <Text fontSize="xl">Gender: {gender}</Text>
+            <Text fontSize="xl">Major: {newUser.major}</Text>
+            <Text fontSize="xl">Gender: {newUser.gender}</Text>
           </GridItem>
         </Grid>
+        <Text fontSize="xl">Bio: {newUser.bio}</Text>
         <Button colorScheme="teal" w="20%" onClick={onOpen}>Edit Profile</Button>
 
         <TabsSelection
@@ -159,27 +208,27 @@ const Profile = () => {
           <ModalBody>
             <FormControl>
               <FormLabel>Name</FormLabel>
-              <Input value={name} onChange={(e) => setName(e.target.value)} />
+              <Input value={username} onChange = {(e) => setUsername(e.target.value)}/>
             </FormControl>
-            <FormControl mt={4}>
-              <FormLabel>Email</FormLabel>
-              <Input value={email} onChange={(e) => setEmail(e.target.value)} />
-            </FormControl>
-            <FormControl mt={4}>
+            {/* <FormControl mt={4}>
               <FormLabel>Interests</FormLabel>
-              <Input value={interests} onChange={(e) => setInterests(e.target.value)} />
+              <Input value={interests} />
             </FormControl>
             <FormControl mt={4}>
               <FormLabel>Hobbies</FormLabel>
-              <Input value={hobbies} onChange={(e) => setHobbies(e.target.value)} />
-            </FormControl>
+              <Input value={hobbies} />
+            </FormControl> */}
             <FormControl mt={4}>
               <FormLabel>Major</FormLabel>
-              <Input value={major} onChange={(e) => setMajor(e.target.value)} />
+              <Input value={major} onChange = {(e) => setMajor(e.target.value)} />
+            </FormControl>
+            <FormControl mt={4}>
+              <FormLabel>Bio</FormLabel>
+              <Input value={bio} onChange = {(e) => setBio(e.target.value)} />
             </FormControl>
             <FormControl mt={4}>
               <FormLabel>Age</FormLabel>
-              <Input type="number" value={age} onChange={(e) => setAge(e.target.value)} />
+              <Input type="number" value={age} onChange = {(e) => setAge(e.target.value)}/>
             </FormControl>
             <FormControl mt={4}>
               <FormLabel>Gender</FormLabel>
